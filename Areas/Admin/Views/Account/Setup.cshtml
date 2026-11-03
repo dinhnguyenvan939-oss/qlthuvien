@@ -1,0 +1,33 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Thiết lập quản trị viên đầu tiên";
+}
+@model SetupAdminViewModel
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quản lý thư viện</title>
+    <link rel="icon" href="~/admin/assets/img/favicon.png" />
+    <link href="~/admin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/admin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/admin/assets/css/style.css" rel="stylesheet" />
+</head>
+<body>
+<main><div class="container"><section class="section register min-vh-100 d-flex align-items-center justify-content-center py-4">
+    <div class="col-lg-5 col-md-7">
+        <div class="card"><div class="card-body">
+            <div class="pt-4 pb-2"><h1 class="card-title text-center fs-4">Tạo quản trị viên đầu tiên</h1><p class="text-center small">Chỉ dùng được khi chưa có tài khoản Admin và ứng dụng chạy ở Development.</p></div>
+            <form asp-area="Admin" asp-controller="Account" asp-action="Setup" method="post" class="row g-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+                <div class="col-12"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger small"></span></div>
+                <div class="col-12"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" autocomplete="email" /><span asp-validation-for="Email" class="text-danger small"></span></div>
+                <div class="col-12"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password" class="text-danger small"></span></div>
+                <div class="col-12"><label asp-for="ConfirmPassword" class="form-label"></label><input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="ConfirmPassword" class="text-danger small"></span></div>
+                <div class="col-12"><button class="btn btn-primary w-100" type="submit">Tạo tài khoản Admin</button></div>
+            </form>
+        </div></div>
+    </div>
+</section></div></main>
+<script src="~/admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body></html>

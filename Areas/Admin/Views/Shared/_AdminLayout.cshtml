@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quản lý thư viện</title>
+    <link rel="icon" href="~/admin/assets/img/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet" />
+    <link href="~/admin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/admin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/admin/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
+    <link href="~/admin/assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="~/admin/assets/css/style.css" rel="stylesheet" />
+</head>
+<body>
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="logo d-flex align-items-center">
+                <img src="~/admin/assets/img/logo.png" alt="Logo" />
+                <span class="d-none d-lg-block">Thư viện</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item dropdown pe-3">
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <img src="~/admin/assets/img/profile-img.jpg" alt="Tài khoản" class="rounded-circle" />
+                        <span class="d-none d-md-block dropdown-toggle ps-2">@User.Identity?.Name</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6>@User.Identity?.Name</h6>
+                            <span>Khu vực quản trị</span>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="px-3">
+                                <button type="submit" class="dropdown-item d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-right"></i><span>Đăng xuất</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-heading">Tổng quan</li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid"></i><span>Bảng điều khiển</span>
+                </a>
+            </li>
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="nav-heading">Hệ thống</li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                        <i class="bi bi-people"></i><span>Tài khoản & phân quyền</span>
+                    </a>
+                </li>
+            }
+            <li class="nav-heading">Danh mục sách</li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                    <i class="bi bi-collection"></i><span>Danh mục</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Genres" asp-action="Index">
+                    <i class="bi bi-bookmarks"></i><span>Thể loại</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>@ViewData["Title"]</h1>
+            <nav><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Trang quản trị</a></li><li class="breadcrumb-item active">@ViewData["Title"]</li></ol></nav>
+        </div>
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">@success<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button></div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">@error<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button></div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer id="footer" class="footer"><div class="copyright">&copy; @DateTime.Now.Year <strong><span>Quản lý thư viện</span></strong></div></footer>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <script src="~/admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/admin/assets/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

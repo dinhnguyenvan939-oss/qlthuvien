@@ -1,0 +1,15 @@
+@model GenreFormViewModel
+@{
+    ViewData["Title"] = "Thêm thể loại";
+}
+<div class="card"><div class="card-body">
+    <h5 class="card-title">Thông tin thể loại</h5>
+    <form asp-action="Create" method="post" class="row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-6"><label asp-for="CategoryId" class="form-label"></label><select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories"><option value="0">Chọn danh mục</option></select><span asp-validation-for="CategoryId" class="text-danger small"></span></div>
+        <div class="col-md-6"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger small"></span></div>
+        <div class="col-12"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea><span asp-validation-for="Description" class="text-danger small"></span></div>
+        <div class="col-12"><div class="form-check form-switch"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label"></label></div></div>
+        <div class="col-12"><button type="submit" class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></div>
+    </form>
+</div></div>

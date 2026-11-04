@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using qlthuvien.Data;
 using qlthuvien.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,20 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
-builder.Services
-    .AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Admin/Account/Login";
-    options.AccessDeniedPath = "/Admin/Account/AccessDenied";
-});
-
+builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Admin/Account/Login";
+        options.AccessDeniedPath = "/Admin/Account/AccessDenied";
+        options.Cookie.Name = "QuanLyThuVien.Auth";
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -41,15 +36,14 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
-    await IdentityRoleSeeder.SeedAsync(scope.ServiceProvider);
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    await db.Database.EnsureCreatedAsync();
 }
 
 app.Run();

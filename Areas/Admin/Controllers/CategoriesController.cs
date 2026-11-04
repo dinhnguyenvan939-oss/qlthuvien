@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using qlthuvien.Data;
+using qlthuvien.Models;
 using qlthuvien.Models.Entities;
-using qlthuvien.ViewModels.Admin;
+using qlthuvien.Areas.Admin.Models;
 
 namespace qlthuvien.Areas.Admin.Controllers;
 
@@ -11,8 +11,8 @@ namespace qlthuvien.Areas.Admin.Controllers;
 [Authorize(Roles = "Admin,Librarian")]
 public class CategoriesController : Controller
 {
-    private readonly ApplicationDbContext _db;
-    public CategoriesController(ApplicationDbContext db) => _db = db;
+    private readonly DataContext _db;
+    public CategoriesController(DataContext db) => _db = db;
 
     public async Task<IActionResult> Index()
     {

@@ -1,35 +1,32 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using qlthuvien.Data;
+using Microsoft.EntityFrameworkCore;
+using qlthuvien.Areas.Admin.Models;
 using qlthuvien.Models;
-using qlthuvien.ViewModels.Admin;
+using qlthuvien.Utilities;
 
 namespace qlthuvien.Areas.Admin.Controllers;
 
 [Area("Admin")]
 public class AccountController : Controller
 {
-    private readonly UserManager<ApplicationUser> _users;
-    private readonly SignInManager<ApplicationUser> _signIn;
+    private readonly DataContext _db;
     private readonly IWebHostEnvironment _environment;
 
-    public AccountController(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn, IWebHostEnvironment environment)
+    public AccountController(DataContext db, IWebHostEnvironment environment)
     {
-        _users = users;
-        _signIn = signIn;
+        _db = db;
         _environment = environment;
     }
 
     [AllowAnonymous]
     public async Task<IActionResult> Login(string? returnUrl = null)
     {
-        if (User.Identity?.IsAuthenticated == true)
-            return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
-
-        if ((await _users.GetUsersInRoleAsync("Admin")).Count == 0)
-            return RedirectToAction(nameof(Setup));
-
+        if (User.Identity?.IsAuthenticated == true) return RedirectToLandingPage();
+        if (!await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Setup));
         ViewBag.ReturnUrl = returnUrl;
         return View(new LoginViewModel());
     }
@@ -39,34 +36,61 @@ public class AccountController : Controller
     {
         ViewBag.ReturnUrl = returnUrl;
         if (!ModelState.IsValid) return View(model);
-
-        var user = await _users.FindByNameAsync(model.UserNameOrEmail)
-            ?? await _users.FindByEmailAsync(model.UserNameOrEmail);
-
-        if (user is null || !user.IsActive)
+        var login = model.UserNameOrEmail.Trim();
+        var user = await _db.AdminUsers.Include(x => x.Role)
+            .FirstOrDefaultAsync(x => x.UserName == login || x.Email == login);
+        if (user is null || !user.IsActive || !PasswordService.Verify(model.Password, user.PasswordHash))
         {
             ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không đúng hoặc tài khoản đã bị khóa.");
             return View(model);
         }
 
-        var result = await _signIn.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: true);
-        if (result.Succeeded)
+        await SignInAsync(user, model.RememberMe);
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
+        return user.Role.Ten_Vai_tro is "Admin" or "Librarian"
+            ? RedirectToAction("Index", "Dashboard", new { area = "Admin" })
+            : RedirectToAction("Index", "Home", new { area = "" });
+    }
+
+    [AllowAnonymous]
+    public IActionResult Register()
+    {
+        if (User.Identity?.IsAuthenticated == true) return RedirectToLandingPage();
+        return View(new RegisterViewModel());
+    }
+
+    [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(RegisterViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+        var email = model.Email.Trim();
+        if (await _db.AdminUsers.AnyAsync(x => x.Email == email || x.UserName == email))
         {
-            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
-            return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            ModelState.AddModelError(nameof(model.Email), "Email này đã được đăng ký.");
+            return View(model);
         }
 
-        ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không đúng.");
-        return View(model);
+        var readerRole = await _db.tblVaiTro.SingleOrDefaultAsync(x => x.Ten_Vai_tro == "Reader");
+        if (readerRole is null) return Problem("Chưa có dữ liệu vai trò. Hãy khởi tạo lại database.");
+        _db.AdminUsers.Add(new AdminUser
+        {
+            UserName = email,
+            Email = email,
+            FullName = model.FullName.Trim(),
+            PasswordHash = PasswordService.Hash(model.Password),
+            RoleId = readerRole.Ma_Vai_tro,
+            IsActive = true
+        });
+        await _db.SaveChangesAsync();
+        TempData["Success"] = "Đăng ký thành công. Bạn có thể đăng nhập bằng email và mật khẩu vừa tạo.";
+        return RedirectToAction(nameof(Login));
     }
 
     [AllowAnonymous]
     public async Task<IActionResult> Setup()
     {
         if (!_environment.IsDevelopment()) return NotFound();
-        if ((await _users.GetUsersInRoleAsync("Admin")).Count > 0)
-            return RedirectToAction(nameof(Login));
+        if (await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Login));
         return View(new SetupAdminViewModel());
     }
 
@@ -74,45 +98,58 @@ public class AccountController : Controller
     public async Task<IActionResult> Setup(SetupAdminViewModel model)
     {
         if (!_environment.IsDevelopment()) return NotFound();
-        if ((await _users.GetUsersInRoleAsync("Admin")).Count > 0)
-            return RedirectToAction(nameof(Login));
+        if (await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Login));
         if (!ModelState.IsValid) return View(model);
-
-        var admin = new ApplicationUser
+        var email = model.Email.Trim();
+        if (await _db.AdminUsers.AnyAsync(x => x.Email == email || x.UserName == email))
         {
-            UserName = model.Email,
-            Email = model.Email,
-            FullName = model.FullName,
+            ModelState.AddModelError(nameof(model.Email), "Email này đã được sử dụng.");
+            return View(model);
+        }
+
+        var adminRole = await _db.tblVaiTro.SingleOrDefaultAsync(x => x.Ten_Vai_tro == "Admin");
+        if (adminRole is null) return Problem("Chưa có dữ liệu vai trò. Hãy khởi tạo lại database.");
+        var admin = new AdminUser
+        {
+            UserName = email,
+            Email = email,
+            FullName = model.FullName.Trim(),
+            PasswordHash = PasswordService.Hash(model.Password),
+            RoleId = adminRole.Ma_Vai_tro,
             IsActive = true
         };
-
-        var createResult = await _users.CreateAsync(admin, model.Password);
-        if (!createResult.Succeeded)
-        {
-            foreach (var error in createResult.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
-            return View(model);
-        }
-
-        var roleResult = await _users.AddToRoleAsync(admin, "Admin");
-        if (!roleResult.Succeeded)
-        {
-            await _users.DeleteAsync(admin);
-            ModelState.AddModelError(string.Empty, "Không thể cấp vai trò quản trị. Hãy chạy ứng dụng ở môi trường Development rồi thử lại.");
-            return View(model);
-        }
-
-        await _signIn.SignInAsync(admin, isPersistent: false);
+        _db.AdminUsers.Add(admin);
+        await _db.SaveChangesAsync();
+        await SignInAsync(admin, persistent: false);
         return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
     }
 
     [HttpPost, Authorize, ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signIn.SignOutAsync();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction(nameof(Login));
     }
 
     [AllowAnonymous]
     public IActionResult AccessDenied() => View();
+
+    private async Task SignInAsync(AdminUser user, bool persistent)
+    {
+        var roleName = await _db.Entry(user).Reference(x => x.Role).Query().Select(x => x.Ten_Vai_tro).SingleAsync();
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, roleName)
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = persistent });
+    }
+
+    private IActionResult RedirectToLandingPage() => User.IsInRole("Admin") || User.IsInRole("Librarian")
+        ? RedirectToAction("Index", "Dashboard", new { area = "Admin" })
+        : RedirectToAction("Index", "Home", new { area = "" });
 }

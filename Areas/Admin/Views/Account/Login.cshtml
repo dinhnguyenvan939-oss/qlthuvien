@@ -1,36 +1,79 @@
 @{
     Layout = null;
-    ViewData["Title"] = "Đăng nhập quản trị";
+    ViewData["Title"] = "Đăng nhập";
 }
 @model LoginViewModel
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Quản lý thư viện</title>
     <link rel="icon" href="~/admin/assets/img/favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Nunito:300,400,600,700|Poppins:300,400,600,700" rel="stylesheet" />
     <link href="~/admin/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="~/admin/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
     <link href="~/admin/assets/css/style.css" rel="stylesheet" />
 </head>
 <body>
-<main><div class="container"><section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-    <div class="container"><div class="row justify-content-center"><div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-        <div class="d-flex justify-content-center py-4"><a asp-area="Admin" asp-controller="Account" asp-action="Login" class="logo d-flex align-items-center w-auto"><img src="~/admin/assets/img/logo.png" alt="" /><span class="d-none d-lg-block">Quản lý thư viện</span></a></div>
-        <div class="card mb-3"><div class="card-body">
-            <div class="pt-4 pb-2"><h5 class="card-title text-center pb-0 fs-4">Đăng nhập quản trị</h5><p class="text-center small">Nhập tài khoản để tiếp tục</p></div>
-            <form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" class="row g-3 needs-validation">
-                <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
-                <div class="col-12"><label asp-for="UserNameOrEmail" class="form-label"></label><input asp-for="UserNameOrEmail" class="form-control" autocomplete="username" /><span asp-validation-for="UserNameOrEmail" class="text-danger small"></span></div>
-                <div class="col-12"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" autocomplete="current-password" /><span asp-validation-for="Password" class="text-danger small"></span></div>
-                <div class="col-12"><div class="form-check"><input asp-for="RememberMe" class="form-check-input" /><label asp-for="RememberMe" class="form-check-label"></label></div></div>
-                <div class="col-12"><button class="btn btn-primary w-100" type="submit">Đăng nhập</button></div>
-            </form>
-        </div></div>
-        <div class="credits">Hệ thống quản lý thư viện</div>
-    </div></div></div>
-</section></div></main>
+<main>
+    <div class="container">
+        <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+                        <div class="d-flex justify-content-center py-4">
+                            <a asp-area="Admin" asp-controller="Account" asp-action="Login" class="logo d-flex align-items-center w-auto">
+                                <img src="~/admin/assets/img/logo.png" alt="" />
+                                <span class="d-none d-lg-block">Quản lý thư viện</span>
+                            </a>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="pt-4 pb-2">
+                                    <h5 class="card-title text-center pb-0 fs-4">Đăng nhập</h5>
+                                    <p class="text-center small">Nhập email và mật khẩu để tiếp tục</p>
+                                </div>
+                                @if (TempData["Success"] is string success)
+                                {
+                                    <div class="alert alert-success" role="alert">@success</div>
+                                }
+                                <form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" class="row g-3">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+                                    <div class="col-12">
+                                        <label asp-for="UserNameOrEmail" class="form-label"></label>
+                                        <input asp-for="UserNameOrEmail" class="form-control" autocomplete="username" />
+                                        <span asp-validation-for="UserNameOrEmail" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label asp-for="Password" class="form-label"></label>
+                                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                                        <span asp-validation-for="Password" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input asp-for="RememberMe" class="form-check-input" />
+                                            <label asp-for="RememberMe" class="form-check-label"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button class="btn btn-primary w-100" type="submit">Đăng nhập</button>
+                                    </div>
+                                    <div class="col-12 text-center small">
+                                        Chưa có tài khoản? <a asp-area="Admin" asp-controller="Account" asp-action="Register">Đăng ký tài khoản độc giả</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="credits">Hệ thống quản lý thư viện</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
 <script src="~/admin/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-</body></html>
+</body>
+</html>

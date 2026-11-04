@@ -50,34 +50,8 @@
     </header>
 
     <aside id="sidebar" class="sidebar">
-        <ul class="sidebar-nav" id="sidebar-nav">
-            <li class="nav-heading">Tổng quan</li>
-            <li class="nav-item">
-                <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi bi-grid"></i><span>Bảng điều khiển</span>
-                </a>
-            </li>
-            @if (User.IsInRole("Admin"))
-            {
-                <li class="nav-heading">Hệ thống</li>
-                <li class="nav-item">
-                    <a class="nav-link collapsed" asp-area="Admin" asp-controller="Users" asp-action="Index">
-                        <i class="bi bi-people"></i><span>Tài khoản & phân quyền</span>
-                    </a>
-                </li>
-            }
-            <li class="nav-heading">Danh mục sách</li>
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Categories" asp-action="Index">
-                    <i class="bi bi-collection"></i><span>Danh mục</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link collapsed" asp-area="Admin" asp-controller="Genres" asp-action="Index">
-                    <i class="bi bi-bookmarks"></i><span>Thể loại</span>
-                </a>
-            </li>
-        </ul>
+        @await Component.InvokeAsync("AdminMenu")
+
     </aside>
 
     <main id="main" class="main">

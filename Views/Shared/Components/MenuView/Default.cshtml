@@ -1,0 +1,8 @@
+@model IReadOnlyCollection<qlthuvien.Models.Entities.TblMenu>
+@foreach (var item in Model.OrderBy(x => x.MenuOrder))
+{
+    var href = string.IsNullOrWhiteSpace(item.Link)
+        ? Url.Action(item.ActionName, item.ControllerName)
+        : item.Link;
+    <li class="nav-item"><a class="nav-link text-dark" href="@href">@item.MenuName</a></li>
+}

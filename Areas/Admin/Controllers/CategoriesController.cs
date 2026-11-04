@@ -81,8 +81,15 @@ public class CategoriesController : Controller
         }
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
+    {
+        var category = await _db.tblDanhMuc.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
+        if (category is null) return NotFound();
+        return View(category);
+    }
+
+    [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var category = await _db.tblDanhMuc.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
         if (category is null) return NotFound();

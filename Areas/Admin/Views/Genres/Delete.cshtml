@@ -1,0 +1,23 @@
+@model tblTheLoai
+@{
+    ViewData["Title"] = "Xóa thể loại";
+}
+<div class="card"><div class="card-body">
+    <h5 class="card-title">Xác nhận xóa thể loại</h5>
+    <p>Bạn có chắc chắn muốn xóa thể loại <strong>@Model.Name</strong> không?</p>
+    <dl class="row">
+        <dt class="col-sm-3">Thể loại</dt><dd class="col-sm-9">@Model.Name</dd>
+        <dt class="col-sm-3">Danh mục</dt><dd class="col-sm-9">@Model.Category.Name</dd>
+        <dt class="col-sm-3">Mô tả</dt><dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Description) ? "—" : Model.Description)</dd>
+        <dt class="col-sm-3">Số đầu sách</dt><dd class="col-sm-9">@Model.Books.Count</dd>
+    </dl>
+    @if (Model.Books.Count > 0)
+    {
+        <div class="alert alert-warning">Thể loại đang được sách sử dụng nên không thể xóa.</div>
+    }
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Quay lại</a>
+        <button type="submit" class="btn btn-danger" disabled="@(Model.Books.Count > 0)"><i class="bi bi-trash"></i> Xác nhận xóa</button>
+    </form>
+</div></div>

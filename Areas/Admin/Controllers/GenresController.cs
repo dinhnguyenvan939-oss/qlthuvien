@@ -102,8 +102,16 @@ public class GenresController : Controller
         }
     }
 
-    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
+    {
+        var genre = await _db.tblTheLoai.Include(x => x.Category).Include(x => x.Books)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (genre is null) return NotFound();
+        return View(genre);
+    }
+
+    [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var genre = await _db.tblTheLoai.Include(x => x.Books).FirstOrDefaultAsync(x => x.Id == id);
         if (genre is null) return NotFound();

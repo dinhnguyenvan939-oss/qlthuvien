@@ -1,10 +1,10 @@
-namespace qlthuvien.Models.Entities;
+namespace qlthuvien.Areas.Admin.Models;
 
-public class Category
+public class tblDanhMuc
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public bool IsActive { get; set; } = true;
-    public ICollection<Genre> Genres { get; set; } = new List<Genre>();
+    public ICollection<tblTheLoai> Genres { get; set; } = new List<tblTheLoai>();
 }

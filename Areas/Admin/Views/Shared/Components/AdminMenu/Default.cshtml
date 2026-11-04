@@ -1,4 +1,4 @@
-@model IReadOnlyCollection<qlthuvien.Models.Entities.AdminMenu>
+@model IReadOnlyCollection<AdminMenu>
 @{
     var roots = Model.Where(x => x.ItemLevel == 1).OrderBy(x => x.ItemOrder);
 }

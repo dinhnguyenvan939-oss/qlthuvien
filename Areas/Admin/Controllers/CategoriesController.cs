@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using qlthuvien.Models;
-using qlthuvien.Models.Entities;
 using qlthuvien.Areas.Admin.Models;
 
 namespace qlthuvien.Areas.Admin.Controllers;
@@ -16,7 +15,7 @@ public class CategoriesController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var categories = await _db.Categories.Include(x => x.Genres)
+        var categories = await _db.tblDanhMuc.Include(x => x.Genres)
             .OrderBy(x => x.Name).ToListAsync();
         return View(categories);
     }
@@ -27,7 +26,7 @@ public class CategoriesController : Controller
     public async Task<IActionResult> Create(CategoryFormViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
-        _db.Categories.Add(new Category
+        _db.tblDanhMuc.Add(new tblDanhMuc
         {
             Name = model.Name.Trim(),
             Description = model.Description?.Trim(),
@@ -48,7 +47,7 @@ public class CategoriesController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        var category = await _db.Categories.FindAsync(id);
+        var category = await _db.tblDanhMuc.FindAsync(id);
         if (category is null) return NotFound();
         return View(new CategoryFormViewModel
         {
@@ -63,7 +62,7 @@ public class CategoriesController : Controller
     public async Task<IActionResult> Edit(CategoryFormViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
-        var category = await _db.Categories.FindAsync(model.Id);
+        var category = await _db.tblDanhMuc.FindAsync(model.Id);
         if (category is null) return NotFound();
 
         category.Name = model.Name.Trim();
@@ -85,7 +84,7 @@ public class CategoriesController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var category = await _db.Categories.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
+        var category = await _db.tblDanhMuc.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
         if (category is null) return NotFound();
         if (category.Genres.Count > 0)
         {
@@ -93,7 +92,7 @@ public class CategoriesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _db.Categories.Remove(category);
+        _db.tblDanhMuc.Remove(category);
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đã xóa danh mục.";
         return RedirectToAction(nameof(Index));

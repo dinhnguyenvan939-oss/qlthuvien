@@ -13,8 +13,8 @@ public class DataContext : DbContext
     public DbSet<AdminMenu> AdminMenu => Set<AdminMenu>();
     public DbSet<UserMenu> UserMenu => Set<UserMenu>();
     public DbSet<TblMenu> Menu => Set<TblMenu>();
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Genre> Genres => Set<Genre>();
+    public DbSet<tblDanhMuc> tblDanhMuc => Set<tblDanhMuc>();
+    public DbSet<tblTheLoai> tblTheLoai => Set<tblTheLoai>();
     public DbSet<Publisher> Publishers => Set<Publisher>();
     public DbSet<Author> Authors => Set<Author>();
     public DbSet<Book> Books => Set<Book>();
@@ -90,13 +90,13 @@ public class DataContext : DbContext
             entity.Property(x => x.Link).HasMaxLength(50);
         });
 
-        builder.Entity<Category>().ToTable("tblDanhMuc").HasData(
-            new Category { Id = 1, Name = "Văn học", Description = "Tác phẩm văn học trong nước và quốc tế", IsActive = true },
-            new Category { Id = 2, Name = "Khoa học", Description = "Sách khoa học tự nhiên và xã hội", IsActive = true },
-            new Category { Id = 3, Name = "Công nghệ", Description = "Sách công nghệ, kỹ thuật và tin học", IsActive = true },
-            new Category { Id = 4, Name = "Lịch sử", Description = "Sách lịch sử Việt Nam và thế giới", IsActive = true },
-            new Category { Id = 5, Name = "Thiếu nhi", Description = "Sách và truyện dành cho thiếu nhi", IsActive = true });
-        builder.Entity<Category>(entity =>
+        builder.Entity<tblDanhMuc>().ToTable("tblDanhMuc").HasData(
+            new tblDanhMuc { Id = 1, Name = "Văn học", Description = "Tác phẩm văn học trong nước và quốc tế", IsActive = true },
+            new tblDanhMuc { Id = 2, Name = "Khoa học", Description = "Sách khoa học tự nhiên và xã hội", IsActive = true },
+            new tblDanhMuc { Id = 3, Name = "Công nghệ", Description = "Sách công nghệ, kỹ thuật và tin học", IsActive = true },
+            new tblDanhMuc { Id = 4, Name = "Lịch sử", Description = "Sách lịch sử Việt Nam và thế giới", IsActive = true },
+            new tblDanhMuc { Id = 5, Name = "Thiếu nhi", Description = "Sách và truyện dành cho thiếu nhi", IsActive = true });
+        builder.Entity<tblDanhMuc>(entity =>
         {
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).HasMaxLength(150).IsRequired();
@@ -104,18 +104,18 @@ public class DataContext : DbContext
             entity.HasIndex(x => x.Name).IsUnique();
         });
 
-        builder.Entity<Genre>().ToTable("tblTheLoai").HasData(
-            new Genre { Id = 1, Name = "Tiểu thuyết", Description = "Tiểu thuyết dài tập hoặc độc lập", CategoryId = 1, IsActive = true },
-            new Genre { Id = 2, Name = "Truyện ngắn", Description = "Tập truyện ngắn", CategoryId = 1, IsActive = true },
-            new Genre { Id = 3, Name = "Thơ", Description = "Thơ và tuyển tập thơ", CategoryId = 1, IsActive = true },
-            new Genre { Id = 4, Name = "Toán học", Description = "Sách toán học và ứng dụng", CategoryId = 2, IsActive = true },
-            new Genre { Id = 5, Name = "Sinh học", Description = "Sách sinh học và khoa học sự sống", CategoryId = 2, IsActive = true },
-            new Genre { Id = 6, Name = "Lập trình", Description = "Sách ngôn ngữ và kỹ thuật lập trình", CategoryId = 3, IsActive = true },
-            new Genre { Id = 7, Name = "Công nghệ thông tin", Description = "Sách hệ thống và ứng dụng CNTT", CategoryId = 3, IsActive = true },
-            new Genre { Id = 8, Name = "Lịch sử Việt Nam", Description = "Sách lịch sử Việt Nam", CategoryId = 4, IsActive = true },
-            new Genre { Id = 9, Name = "Lịch sử thế giới", Description = "Sách lịch sử thế giới", CategoryId = 4, IsActive = true },
-            new Genre { Id = 10, Name = "Truyện thiếu nhi", Description = "Truyện phù hợp với thiếu nhi", CategoryId = 5, IsActive = true });
-        builder.Entity<Genre>(entity =>
+        builder.Entity<tblTheLoai>().ToTable("tblTheLoai").HasData(
+            new tblTheLoai { Id = 1, Name = "Tiểu thuyết", Description = "Tiểu thuyết dài tập hoặc độc lập", CategoryId = 1, IsActive = true },
+            new tblTheLoai { Id = 2, Name = "Truyện ngắn", Description = "Tập truyện ngắn", CategoryId = 1, IsActive = true },
+            new tblTheLoai { Id = 3, Name = "Thơ", Description = "Thơ và tuyển tập thơ", CategoryId = 1, IsActive = true },
+            new tblTheLoai { Id = 4, Name = "Toán học", Description = "Sách toán học và ứng dụng", CategoryId = 2, IsActive = true },
+            new tblTheLoai { Id = 5, Name = "Sinh học", Description = "Sách sinh học và khoa học sự sống", CategoryId = 2, IsActive = true },
+            new tblTheLoai { Id = 6, Name = "Lập trình", Description = "Sách ngôn ngữ và kỹ thuật lập trình", CategoryId = 3, IsActive = true },
+            new tblTheLoai { Id = 7, Name = "Công nghệ thông tin", Description = "Sách hệ thống và ứng dụng CNTT", CategoryId = 3, IsActive = true },
+            new tblTheLoai { Id = 8, Name = "Lịch sử Việt Nam", Description = "Sách lịch sử Việt Nam", CategoryId = 4, IsActive = true },
+            new tblTheLoai { Id = 9, Name = "Lịch sử thế giới", Description = "Sách lịch sử thế giới", CategoryId = 4, IsActive = true },
+            new tblTheLoai { Id = 10, Name = "Truyện thiếu nhi", Description = "Truyện phù hợp với thiếu nhi", CategoryId = 5, IsActive = true });
+        builder.Entity<tblTheLoai>(entity =>
         {
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).HasMaxLength(150).IsRequired();

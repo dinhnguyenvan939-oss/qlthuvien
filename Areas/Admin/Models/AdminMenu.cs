@@ -1,4 +1,4 @@
-namespace qlthuvien.Models.Entities;
+namespace qlthuvien.Areas.Admin.Models;
 
 public class AdminMenu
 {

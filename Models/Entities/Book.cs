@@ -1,3 +1,5 @@
+using qlthuvien.Areas.Admin.Models;
+
 namespace qlthuvien.Models.Entities;
 
 public class Book
@@ -9,7 +11,7 @@ public class Book
     public int? PublishedYear { get; set; }
     public bool IsActive { get; set; } = true;
     public int GenreId { get; set; }
-    public Genre Genre { get; set; } = null!;
+    public tblTheLoai Genre { get; set; } = null!;
     public int PublisherId { get; set; }
     public Publisher Publisher { get; set; } = null!;
     public ICollection<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>();

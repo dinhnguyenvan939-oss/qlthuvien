@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using qlthuvien.Models;
+using qlthuvien.Areas.Admin.Models;
 
 namespace qlthuvien.Areas.Admin.Components;
 

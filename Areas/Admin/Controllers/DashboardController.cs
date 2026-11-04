@@ -15,8 +15,8 @@ public class DashboardController : Controller
     public async Task<IActionResult> Index()
     {
         ViewBag.UserCount = await _db.AdminUsers.CountAsync();
-        ViewBag.CategoryCount = await _db.Categories.CountAsync();
-        ViewBag.GenreCount = await _db.Genres.CountAsync();
+        ViewBag.CategoryCount = await _db.tblDanhMuc.CountAsync();
+        ViewBag.GenreCount = await _db.tblTheLoai.CountAsync();
         ViewBag.BookCount = await _db.Books.CountAsync();
         return View();
     }

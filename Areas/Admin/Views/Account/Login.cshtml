@@ -1,6 +1,7 @@
 @{
     Layout = null;
-    ViewData["Title"] = "Đăng nhập";
+    var adminLogin = ViewBag.AdminLogin is true;
+    ViewData["Title"] = adminLogin ? "Đăng nhập quản trị" : "Đăng nhập";
 }
 @model LoginViewModel
 <!DOCTYPE html>
@@ -33,14 +34,15 @@
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="pt-4 pb-2">
-                                    <h5 class="card-title text-center pb-0 fs-4">Đăng nhập</h5>
-                                    <p class="text-center small">Nhập email và mật khẩu để tiếp tục</p>
+                                    <h5 class="card-title text-center pb-0 fs-4">@(adminLogin ? "Đăng nhập quản trị" : "Đăng nhập")</h5>
+                                    <p class="text-center small">@(adminLogin ? "Dành cho quản trị viên và thủ thư" : "Nhập email và mật khẩu để tiếp tục")</p>
                                 </div>
                                 @if (TempData["Success"] is string success)
                                 {
                                     <div class="alert alert-success" role="alert">@success</div>
                                 }
                                 <form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl" method="post" class="row g-3">
+                                    <input asp-for="AdminLogin" type="hidden" />
                                     <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
                                     <div class="col-12">
                                         <label asp-for="UserNameOrEmail" class="form-label"></label>
@@ -61,9 +63,21 @@
                                     <div class="col-12">
                                         <button class="btn btn-primary w-100" type="submit">Đăng nhập</button>
                                     </div>
-                                    <div class="col-12 text-center small">
-                                        Chưa có tài khoản? <a asp-area="Admin" asp-controller="Account" asp-action="Register">Đăng ký tài khoản độc giả</a>
-                                    </div>
+                                    @if (adminLogin)
+                                    {
+                                        <div class="col-12 text-center small">
+                                            <a asp-area="Admin" asp-controller="Account" asp-action="Login">Đăng nhập độc giả</a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-12 text-center small">
+                                            Chưa có tài khoản? <a asp-area="Admin" asp-controller="Account" asp-action="Register">Đăng ký tài khoản độc giả</a>
+                                        </div>
+                                        <div class="col-12 text-center small">
+                                            <a asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-adminLogin="true"><i class="bi bi-shield-lock me-1"></i>Đăng nhập quản trị</a>
+                                        </div>
+                                    }
                                 </form>
                             </div>
                         </div>

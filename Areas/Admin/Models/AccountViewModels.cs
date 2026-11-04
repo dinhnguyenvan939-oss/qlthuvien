@@ -4,6 +4,8 @@ namespace qlthuvien.Areas.Admin.Models;
 
 public class LoginViewModel
 {
+    public bool AdminLogin { get; set; }
+
     [Required(ErrorMessage = "Vui lòng nhập email hoặc tên đăng nhập.")]
     [Display(Name = "Email hoặc tên đăng nhập")]
     public string UserNameOrEmail { get; set; } = string.Empty;

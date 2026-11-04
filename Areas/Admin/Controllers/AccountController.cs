@@ -23,18 +23,20 @@ public class AccountController : Controller
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Login(string? returnUrl = null)
+    public async Task<IActionResult> Login(string? returnUrl = null, bool adminLogin = false)
     {
         if (User.Identity?.IsAuthenticated == true) return RedirectToLandingPage();
         if (!await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Setup));
         ViewBag.ReturnUrl = returnUrl;
-        return View(new LoginViewModel());
+        ViewBag.AdminLogin = adminLogin;
+        return View(new LoginViewModel { AdminLogin = adminLogin });
     }
 
     [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewBag.ReturnUrl = returnUrl;
+        ViewBag.AdminLogin = model.AdminLogin;
         if (!ModelState.IsValid) return View(model);
         var login = model.UserNameOrEmail.Trim();
         var user = await _db.AdminUsers.Include(x => x.Role)
@@ -42,6 +44,12 @@ public class AccountController : Controller
         if (user is null || !user.IsActive || !PasswordService.Verify(model.Password, user.PasswordHash))
         {
             ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không đúng hoặc tài khoản đã bị khóa.");
+            return View(model);
+        }
+
+        if (model.AdminLogin && user.Role.Ten_Vai_tro is not ("Admin" or "Librarian"))
+        {
+            ModelState.AddModelError(string.Empty, "Tài khoản này không có quyền truy cập khu vực quản trị.");
             return View(model);
         }
 

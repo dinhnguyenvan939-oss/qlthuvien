@@ -116,5 +116,73 @@ public class UsersController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    public async Task<IActionResult> Delete(int id)
+    {
+        var user = await _db.AdminUsers.Include(x => x.Role).SingleOrDefaultAsync(x => x.UserID == id);
+        if (user is null) return NotFound();
+
+        var loanRecordCount = await _db.LoanRecords.CountAsync(x => x.BorrowerId == id || x.ProcessedById == id);
+        var isCurrentUser = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentId) && currentId == id;
+        var anotherAdminExists = await _db.AdminUsers.AnyAsync(x => x.UserID != id && x.Role.Ten_Vai_tro == "Admin");
+        var blockedReason = isCurrentUser
+            ? "Bạn không thể xóa tài khoản đang đăng nhập."
+            : user.Role.Ten_Vai_tro == "Admin" && !anotherAdminExists
+                ? "Không thể xóa Admin cuối cùng. Hãy tạo tài khoản Admin khác trước."
+                : loanRecordCount > 0
+                    ? "Tài khoản có lịch sử mượn hoặc xử lý phiếu mượn. Hãy khóa tài khoản trong trang Sửa để giữ lịch sử."
+                    : null;
+
+        return View(new UserDeleteViewModel
+        {
+            Id = user.UserID,
+            FullName = user.FullName,
+            UserName = user.UserName,
+            Email = user.Email,
+            RoleName = user.Role.Ten_Vai_tro,
+            IsActive = user.IsActive,
+            LoanRecordCount = loanRecordCount,
+            DeleteBlockedReason = blockedReason
+        });
+    }
+
+    [HttpPost, ActionName("Delete"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var user = await _db.AdminUsers.Include(x => x.Role).SingleOrDefaultAsync(x => x.UserID == id);
+        if (user is null) return NotFound();
+
+        var isCurrentUser = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentId) && currentId == id;
+        if (isCurrentUser)
+        {
+            TempData["Error"] = "Bạn không thể xóa tài khoản đang đăng nhập.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (user.Role.Ten_Vai_tro == "Admin"
+            && !await _db.AdminUsers.AnyAsync(x => x.UserID != id && x.Role.Ten_Vai_tro == "Admin"))
+        {
+            TempData["Error"] = "Không thể xóa Admin cuối cùng. Hãy tạo tài khoản Admin khác trước.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (await _db.LoanRecords.AnyAsync(x => x.BorrowerId == id || x.ProcessedById == id))
+        {
+            TempData["Error"] = "Tài khoản có lịch sử mượn hoặc xử lý phiếu mượn. Hãy khóa tài khoản để giữ lịch sử.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _db.AdminUsers.Remove(user);
+        try
+        {
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Đã xóa tài khoản.";
+        }
+        catch (DbUpdateException)
+        {
+            TempData["Error"] = "Không thể xóa tài khoản vì dữ liệu khác đang tham chiếu đến tài khoản này. Hãy khóa tài khoản thay thế.";
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task LoadRolesAsync() => ViewBag.Roles = await _db.tblVaiTro.OrderBy(x => x.Ma_Vai_tro).Select(x => x.Ten_Vai_tro).ToListAsync();
 }

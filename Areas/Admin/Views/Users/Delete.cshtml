@@ -1,0 +1,28 @@
+@model UserDeleteViewModel
+@{
+    ViewData["Title"] = "Xóa tài khoản";
+}
+<div class="card"><div class="card-body">
+    <h5 class="card-title">Xác nhận xóa tài khoản</h5>
+    <p>Bạn có chắc chắn muốn xóa tài khoản <strong>@Model.FullName</strong> không?</p>
+    <dl class="row">
+        <dt class="col-sm-3">Tên đăng nhập</dt><dd class="col-sm-9">@Model.UserName</dd>
+        <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
+        <dt class="col-sm-3">Vai trò</dt><dd class="col-sm-9">@Model.RoleName</dd>
+        <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">@(Model.IsActive ? "Hoạt động" : "Đã khóa")</dd>
+        <dt class="col-sm-3">Phiếu mượn liên quan</dt><dd class="col-sm-9">@Model.LoanRecordCount</dd>
+    </dl>
+    @if (!Model.CanDelete)
+    {
+        <div class="alert alert-warning">@Model.DeleteBlockedReason</div>
+    }
+    else
+    {
+        <div class="alert alert-danger">Thao tác này xóa tài khoản vĩnh viễn.</div>
+    }
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Quay lại</a>
+        <button type="submit" class="btn btn-danger" disabled="@(!Model.CanDelete)"><i class="bi bi-trash"></i> Xác nhận xóa</button>
+    </form>
+</div></div>

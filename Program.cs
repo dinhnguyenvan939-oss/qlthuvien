@@ -11,8 +11,8 @@ builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(conne
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Admin/Account/Login";
-        options.AccessDeniedPath = "/Admin/Account/AccessDenied";
+        options.LoginPath = "/Admin/Login/Index";
+        options.AccessDeniedPath = "/Admin/Login/AccessDenied";
         options.Cookie.Name = "QuanLyThuVien.Auth";
         options.SlidingExpiration = true;
     });

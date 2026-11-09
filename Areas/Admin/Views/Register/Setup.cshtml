@@ -18,7 +18,7 @@
     <div class="col-lg-5 col-md-7">
         <div class="card"><div class="card-body">
             <div class="pt-4 pb-2"><h1 class="card-title text-center fs-4">Tạo quản trị viên đầu tiên</h1><p class="text-center small">Chỉ dùng được khi chưa có tài khoản Admin và ứng dụng chạy ở Development.</p></div>
-            <form asp-area="Admin" asp-controller="Account" asp-action="Setup" method="post" class="row g-3">
+            <form asp-area="Admin" asp-controller="Register" asp-action="Setup" method="post" class="row g-3">
                 <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
                 <div class="col-12"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger small"></span></div>
                 <div class="col-12"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" autocomplete="email" /><span asp-validation-for="Email" class="text-danger small"></span></div>

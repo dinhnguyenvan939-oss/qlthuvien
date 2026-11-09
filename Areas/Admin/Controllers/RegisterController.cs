@@ -11,64 +11,26 @@ using qlthuvien.Utilities;
 namespace qlthuvien.Areas.Admin.Controllers;
 
 [Area("Admin")]
-public class AccountController : Controller
+public class RegisterController : Controller
 {
     private readonly DataContext _db;
     private readonly IWebHostEnvironment _environment;
 
-    public AccountController(DataContext db, IWebHostEnvironment environment)
+    public RegisterController(DataContext db, IWebHostEnvironment environment)
     {
         _db = db;
         _environment = environment;
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Login(string? returnUrl = null, bool adminLogin = false)
+    public IActionResult Index()
     {
-        if (User.Identity?.IsAuthenticated == true) return RedirectToLandingPage();
-        if (!await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Setup));
-        ViewBag.ReturnUrl = returnUrl;
-        ViewBag.AdminLogin = adminLogin;
-        return View(new LoginViewModel { AdminLogin = adminLogin });
-    }
-
-    [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
-    {
-        ViewBag.ReturnUrl = returnUrl;
-        ViewBag.AdminLogin = model.AdminLogin;
-        if (!ModelState.IsValid) return View(model);
-        var login = model.UserNameOrEmail.Trim();
-        var user = await _db.AdminUsers.Include(x => x.Role)
-            .FirstOrDefaultAsync(x => x.UserName == login || x.Email == login);
-        if (user is null || !user.IsActive || !PasswordService.Verify(model.Password, user.PasswordHash))
-        {
-            ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không đúng hoặc tài khoản đã bị khóa.");
-            return View(model);
-        }
-
-        if (model.AdminLogin && user.Role.Ten_Vai_tro is not ("Admin" or "Librarian"))
-        {
-            ModelState.AddModelError(string.Empty, "Tài khoản này không có quyền truy cập khu vực quản trị.");
-            return View(model);
-        }
-
-        await SignInAsync(user, model.RememberMe);
-        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
-        return user.Role.Ten_Vai_tro is "Admin" or "Librarian"
-            ? RedirectToAction("Index", "Dashboard", new { area = "Admin" })
-            : RedirectToAction("Index", "Home", new { area = "" });
-    }
-
-    [AllowAnonymous]
-    public IActionResult Register()
-    {
-        if (User.Identity?.IsAuthenticated == true) return RedirectToLandingPage();
+        if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Login");
         return View(new RegisterViewModel());
     }
 
     [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterViewModel model)
+    public async Task<IActionResult> Index(RegisterViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
         var email = model.Email.Trim();
@@ -91,14 +53,15 @@ public class AccountController : Controller
         });
         await _db.SaveChangesAsync();
         TempData["Success"] = "Đăng ký thành công. Bạn có thể đăng nhập bằng email và mật khẩu vừa tạo.";
-        return RedirectToAction(nameof(Login));
+        return RedirectToAction("Index", "Login");
     }
 
     [AllowAnonymous]
     public async Task<IActionResult> Setup()
     {
         if (!_environment.IsDevelopment()) return NotFound();
-        if (await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Login));
+        if (await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin"))
+            return RedirectToAction("Index", "Login");
         return View(new SetupAdminViewModel());
     }
 
@@ -106,8 +69,10 @@ public class AccountController : Controller
     public async Task<IActionResult> Setup(SetupAdminViewModel model)
     {
         if (!_environment.IsDevelopment()) return NotFound();
-        if (await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin")) return RedirectToAction(nameof(Login));
+        if (await _db.AdminUsers.AnyAsync(x => x.Role.Ten_Vai_tro == "Admin"))
+            return RedirectToAction("Index", "Login");
         if (!ModelState.IsValid) return View(model);
+
         var email = model.Email.Trim();
         if (await _db.AdminUsers.AnyAsync(x => x.Email == email || x.UserName == email))
         {
@@ -128,23 +93,14 @@ public class AccountController : Controller
         };
         _db.AdminUsers.Add(admin);
         await _db.SaveChangesAsync();
-        await SignInAsync(admin, persistent: false);
+        await SignInAsync(admin);
         return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
     }
 
-    [HttpPost, Authorize, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout()
+    private async Task SignInAsync(AdminUser user)
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return RedirectToAction(nameof(Login));
-    }
-
-    [AllowAnonymous]
-    public IActionResult AccessDenied() => View();
-
-    private async Task SignInAsync(AdminUser user, bool persistent)
-    {
-        var roleName = await _db.Entry(user).Reference(x => x.Role).Query().Select(x => x.Ten_Vai_tro).SingleAsync();
+        var roleName = await _db.Entry(user).Reference(x => x.Role).Query()
+            .Select(x => x.Ten_Vai_tro).SingleAsync();
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.UserID.ToString()),
@@ -154,10 +110,6 @@ public class AccountController : Controller
         };
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = persistent });
+            new ClaimsPrincipal(identity), new AuthenticationProperties { IsPersistent = false });
     }
-
-    private IActionResult RedirectToLandingPage() => User.IsInRole("Admin") || User.IsInRole("Librarian")
-        ? RedirectToAction("Index", "Dashboard", new { area = "Admin" })
-        : RedirectToAction("Index", "Home", new { area = "" });
 }

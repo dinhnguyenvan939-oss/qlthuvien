@@ -1,0 +1,21 @@
+@model BookFormViewModel
+@{
+    var isEdit = Model.Id != 0;
+    var formAction = (string)ViewData["FormAction"]!;
+    ViewData["Title"] = isEdit ? "Sửa sách" : "Thêm sách";
+}
+<div class="card"><div class="card-body">
+    <h5 class="card-title">Thông tin sách</h5>
+    <form asp-action="@formAction" method="post" class="row g-3">
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-4"><label asp-for="ISBN" class="form-label"></label><input asp-for="ISBN" class="form-control" /><span asp-validation-for="ISBN" class="text-danger small"></span></div>
+        <div class="col-md-8"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger small"></span></div>
+        <div class="col-md-6"><label asp-for="GenreId" class="form-label"></label><select asp-for="GenreId" class="form-select" asp-items="ViewBag.Genres"><option value="0">Chọn thể loại</option></select><span asp-validation-for="GenreId" class="text-danger small"></span></div>
+        <div class="col-md-6"><label asp-for="PublisherId" class="form-label"></label><select asp-for="PublisherId" class="form-select" asp-items="ViewBag.Publishers"><option value="0">Chọn nhà xuất bản</option></select><span asp-validation-for="PublisherId" class="text-danger small"></span></div>
+        <div class="col-md-4"><label asp-for="PublishedYear" class="form-label"></label><input asp-for="PublishedYear" class="form-control" /><span asp-validation-for="PublishedYear" class="text-danger small"></span></div>
+        <div class="col-12"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea><span asp-validation-for="Description" class="text-danger small"></span></div>
+        <div class="col-12"><div class="form-check form-switch"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label"></label></div></div>
+        <div class="col-12"><button type="submit" class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></div>
+    </form>
+</div></div>

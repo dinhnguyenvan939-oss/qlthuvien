@@ -15,9 +15,9 @@ public class DataContext : DbContext
     public DbSet<TblMenu> Menu => Set<TblMenu>();
     public DbSet<tblDanhMuc> tblDanhMuc => Set<tblDanhMuc>();
     public DbSet<tblTheLoai> tblTheLoai => Set<tblTheLoai>();
-    public DbSet<Publisher> Publishers => Set<Publisher>();
-    public DbSet<Author> Authors => Set<Author>();
-    public DbSet<Book> Books => Set<Book>();
+    public DbSet<tblNXB> tblNXB => Set<tblNXB>();
+    public DbSet<tblTacGia> tblTacGia => Set<tblTacGia>();
+    public DbSet<tblSach> tblSach => Set<tblSach>();
     public DbSet<BookAuthor> BookAuthors => Set<BookAuthor>();
     public DbSet<BookCopy> BookCopies => Set<BookCopy>();
     public DbSet<DigitalResource> DigitalResources => Set<DigitalResource>();
@@ -124,12 +124,9 @@ public class DataContext : DbContext
             entity.HasOne(x => x.Category).WithMany(x => x.Genres).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        builder.Entity<Publisher>().ToTable("tblNXB").HasData(
-            new Publisher { Id = 1, Name = "Nhà xuất bản Trẻ", Address = "TP. Hồ Chí Minh", Phone = "028-39316289", Email = "info@nxbtre.com.vn" },
-            new Publisher { Id = 2, Name = "Nhà xuất bản Kim Đồng", Address = "Hà Nội", Phone = "024-39434730", Email = "info@nxbkimdong.com.vn" },
-            new Publisher { Id = 3, Name = "Nhà xuất bản Giáo dục Việt Nam", Address = "Hà Nội", Phone = "024-38515380", Email = "info@nxbgd.vn" });
-        builder.Entity<Publisher>(entity =>
+        builder.Entity<tblNXB>(entity =>
         {
+            entity.ToTable("tblNXB");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
             entity.Property(x => x.Address).HasMaxLength(300);
@@ -137,27 +134,17 @@ public class DataContext : DbContext
             entity.Property(x => x.Email).HasMaxLength(256);
         });
 
-        builder.Entity<Author>().ToTable("tblTacGia").HasData(
-            new Author { Id = 1, FullName = "Nguyễn Nhật Ánh", Biography = "Nhà văn Việt Nam, tác giả nhiều tác phẩm dành cho thanh thiếu niên." },
-            new Author { Id = 2, FullName = "Tô Hoài", Biography = "Nhà văn Việt Nam, tác giả Dế Mèn phiêu lưu ký." },
-            new Author { Id = 3, FullName = "Nam Cao", Biography = "Nhà văn hiện thực Việt Nam." },
-            new Author { Id = 4, FullName = "George Orwell", Biography = "Nhà văn và nhà báo người Anh." },
-            new Author { Id = 5, FullName = "Robert C. Martin", Biography = "Tác giả và chuyên gia về phát triển phần mềm." });
-        builder.Entity<Author>(entity =>
+        builder.Entity<tblTacGia>(entity =>
         {
+            entity.ToTable("tblTacGia");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.FullName).HasMaxLength(200).IsRequired();
             entity.Property(x => x.Biography).HasMaxLength(2000);
         });
 
-        builder.Entity<Book>().ToTable("tblSach").HasData(
-            new Book { Id = 1, ISBN = "9786041199991", Title = "Mắt biếc", Description = "Tiểu thuyết về tình bạn và tình yêu tuổi học trò.", PublishedYear = 2019, IsActive = true, GenreId = 1, PublisherId = 1 },
-            new Book { Id = 2, ISBN = "9786042230007", Title = "Dế Mèn phiêu lưu ký", Description = "Tác phẩm văn học thiếu nhi Việt Nam.", PublishedYear = 2020, IsActive = true, GenreId = 10, PublisherId = 2 },
-            new Book { Id = 3, ISBN = "9786043291113", Title = "Chí Phèo", Description = "Tuyển tập truyện ngắn tiêu biểu của Nam Cao.", PublishedYear = 2021, IsActive = true, GenreId = 2, PublisherId = 3 },
-            new Book { Id = 4, ISBN = "9786043452225", Title = "Clean Code", Description = "Thực hành viết mã nguồn dễ đọc và dễ bảo trì.", PublishedYear = 2022, IsActive = true, GenreId = 6, PublisherId = 1 },
-            new Book { Id = 5, ISBN = "9786043563337", Title = "1984", Description = "Tiểu thuyết kinh điển về xã hội phản địa đàng.", PublishedYear = 2023, IsActive = true, GenreId = 1, PublisherId = 1 });
-        builder.Entity<Book>(entity =>
+        builder.Entity<tblSach>(entity =>
         {
+            entity.ToTable("tblSach");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.ISBN).HasMaxLength(20).IsRequired();
             entity.Property(x => x.Title).HasMaxLength(250).IsRequired();

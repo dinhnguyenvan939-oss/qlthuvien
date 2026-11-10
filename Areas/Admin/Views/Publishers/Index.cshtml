@@ -1,0 +1,19 @@
+@model IReadOnlyList<tblNXB>
+@{
+    ViewData["Title"] = "Nhà xuất bản";
+}
+<div class="card"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-center pt-3 pb-2"><h5 class="card-title mb-0">Danh sách nhà xuất bản</h5><a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Thêm nhà xuất bản</a></div>
+    <div class="table-responsive"><table class="table table-hover align-middle">
+        <thead><tr><th>Tên nhà xuất bản</th><th>Địa chỉ</th><th>Điện thoại</th><th>Email</th><th>Số sách</th><th class="text-end">Thao tác</th></tr></thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td><td>@(string.IsNullOrWhiteSpace(item.Address) ? "—" : item.Address)</td><td>@(string.IsNullOrWhiteSpace(item.Phone) ? "—" : item.Phone)</td><td>@(string.IsNullOrWhiteSpace(item.Email) ? "—" : item.Email)</td><td>@item.Books.Count</td>
+                <td class="text-end text-nowrap"><a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Sửa</a> <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Xóa</a></td>
+            </tr>
+        }
+        </tbody>
+    </table></div>
+</div></div>

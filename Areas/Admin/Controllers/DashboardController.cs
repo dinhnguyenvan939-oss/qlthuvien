@@ -17,7 +17,7 @@ public class DashboardController : Controller
         ViewBag.UserCount = await _db.AdminUsers.CountAsync();
         ViewBag.CategoryCount = await _db.tblDanhMuc.CountAsync();
         ViewBag.GenreCount = await _db.tblTheLoai.CountAsync();
-        ViewBag.BookCount = await _db.Books.CountAsync();
+        ViewBag.BookCount = await _db.tblSach.CountAsync();
         return View();
     }
 }

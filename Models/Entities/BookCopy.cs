@@ -1,3 +1,5 @@
+using qlthuvien.Areas.Admin.Models;
+
 namespace qlthuvien.Models.Entities;
 
 public enum BookCopyStatus
@@ -12,7 +14,7 @@ public class BookCopy
 {
     public int Id { get; set; }
     public int BookId { get; set; }
-    public Book Book { get; set; } = null!;
+    public tblSach Book { get; set; } = null!;
     public string Barcode { get; set; } = string.Empty;
     public BookCopyStatus Status { get; set; } = BookCopyStatus.Available;
     public DateTime AcquiredAtUtc { get; set; } = DateTime.UtcNow;

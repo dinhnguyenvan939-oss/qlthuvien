@@ -1,0 +1,22 @@
+@model tblSach
+@{
+    ViewData["Title"] = "Xóa sách";
+    var hasDependencies = Model.Copies.Count > 0 || Model.DigitalResources.Count > 0;
+}
+<div class="card"><div class="card-body">
+    <h5 class="card-title">Xác nhận xóa sách</h5>
+    <p>Bạn có chắc chắn muốn xóa sách <strong>@Model.Title</strong> không?</p>
+    <dl class="row">
+        <dt class="col-sm-3">ISBN</dt><dd class="col-sm-9">@Model.ISBN</dd>
+        <dt class="col-sm-3">Thể loại</dt><dd class="col-sm-9">@Model.Genre.Name</dd>
+        <dt class="col-sm-3">Nhà xuất bản</dt><dd class="col-sm-9">@Model.Publisher.Name</dd>
+        <dt class="col-sm-3">Bản sao</dt><dd class="col-sm-9">@Model.Copies.Count</dd>
+        <dt class="col-sm-3">Tài liệu số</dt><dd class="col-sm-9">@Model.DigitalResources.Count</dd>
+    </dl>
+    @if (hasDependencies) { <div class="alert alert-warning">Sách đang có bản sao hoặc tài liệu số nên không thể xóa.</div> }
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Quay lại</a>
+        <button type="submit" class="btn btn-danger" disabled="@hasDependencies"><i class="bi bi-trash"></i> Xác nhận xóa</button>
+    </form>
+</div></div>

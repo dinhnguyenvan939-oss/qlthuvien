@@ -1,0 +1,20 @@
+@model tblNXB
+@{
+    ViewData["Title"] = "Xóa nhà xuất bản";
+}
+<div class="card"><div class="card-body">
+    <h5 class="card-title">Xác nhận xóa nhà xuất bản</h5>
+    <p>Bạn có chắc chắn muốn xóa nhà xuất bản <strong>@Model.Name</strong> không?</p>
+    <dl class="row">
+        <dt class="col-sm-3">Địa chỉ</dt><dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Address) ? "—" : Model.Address)</dd>
+        <dt class="col-sm-3">Điện thoại</dt><dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Phone) ? "—" : Model.Phone)</dd>
+        <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Email) ? "—" : Model.Email)</dd>
+        <dt class="col-sm-3">Số sách</dt><dd class="col-sm-9">@Model.Books.Count</dd>
+    </dl>
+    @if (Model.Books.Count > 0) { <div class="alert alert-warning">Nhà xuất bản đang có sách nên không thể xóa.</div> }
+    <form asp-action="Delete" method="post" class="d-flex gap-2">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Quay lại</a>
+        <button type="submit" class="btn btn-danger" disabled="@(Model.Books.Count > 0)"><i class="bi bi-trash"></i> Xác nhận xóa</button>
+    </form>
+</div></div>

@@ -1,29 +1,80 @@
 @model IReadOnlyCollection<AdminMenu>
 @{
+    var currentArea = Convert.ToString(ViewContext.RouteData.Values["area"]) ?? string.Empty;
+    var currentController = Convert.ToString(ViewContext.RouteData.Values["controller"]) ?? string.Empty;
+    var currentAction = Convert.ToString(ViewContext.RouteData.Values["action"]) ?? string.Empty;
+
+    bool IsCurrentPage(AdminMenu item) =>
+        string.Equals(currentArea, item.AreaName ?? string.Empty, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentController, item.ControllerName ?? string.Empty, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(currentAction, item.ActionName ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+
     var roots = Model.Where(x => x.ItemLevel == 1).OrderBy(x => x.ItemOrder);
 }
 <ul class="sidebar-nav" id="sidebar-nav">
     @foreach (var item in roots)
     {
-        var children = Model.Where(x => x.ParentLevel == item.AdminMenuID).OrderBy(x => x.ItemOrder).ToList();
+        var children = Model
+            .Where(x => x.ParentLevel == item.AdminMenuID)
+            .OrderBy(x => x.ItemOrder)
+            .ToList();
+
+        var groupIsActive = children.Any(IsCurrentPage);
+
         <li class="nav-item">
             @if (children.Count > 0)
             {
                 var target = item.IdName ?? $"menu-{item.AdminMenuID}";
-                <a class="nav-link collapsed" data-bs-target="#@target" data-bs-toggle="collapse" href="#">
-                    <i class="@(item.Icon ?? "bi bi-circle")"></i><span>@item.ItemName</span><i class="bi bi-chevron-down ms-auto"></i>
+
+                <a class="nav-link @(groupIsActive ? "" : "collapsed")"
+                   data-bs-target="#@target"
+                   data-bs-toggle="collapse"
+                   href="#"
+                   aria-expanded="@(groupIsActive ? "true" : "false")">
+                    <i class="@(item.Icon ?? "bi bi-circle")"></i>
+                    <span>@item.ItemName</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <ul id="@target" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+
+                <ul id="@target"
+                    class="nav-content collapse @(groupIsActive ? "show" : "")">
                     @foreach (var child in children)
                     {
-                        <li><a href="@Url.Action(child.ActionName, child.ControllerName, new { area = child.AreaName })"><i class="@(child.Icon ?? "bi bi-circle")"></i><span>@child.ItemName</span></a></li>
+                        var childIsActive = IsCurrentPage(child);
+                        var hasRoute = !string.IsNullOrWhiteSpace(child.AreaName)
+                            && !string.IsNullOrWhiteSpace(child.ControllerName)
+                            && !string.IsNullOrWhiteSpace(child.ActionName);
+
+                        <li>
+                            @if (hasRoute)
+                            {
+                                <a class="@(childIsActive ? "active" : "")"
+                                   asp-area="@child.AreaName"
+                                   asp-controller="@child.ControllerName"
+                                   asp-action="@child.ActionName">
+                                    <i class="@(child.Icon ?? "bi bi-circle")"></i>
+                                    <span>@child.ItemName</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="text-muted" aria-disabled="true" title="Thiếu AreaName, ControllerName hoặc ActionName trong cấu hình menu.">
+                                    <i class="@(child.Icon ?? "bi bi-circle")"></i>
+                                    <span>@child.ItemName</span>
+                                </span>
+                            }
+                        </li>
                     }
                 </ul>
             }
             else
             {
-                <a class="nav-link collapsed" href="@Url.Action(item.ActionName, item.ControllerName, new { area = item.AreaName })">
-                    <i class="@(item.Icon ?? "bi bi-circle")"></i><span>@item.ItemName</span>
+                <a class="nav-link @(IsCurrentPage(item) ? "active" : "collapsed")"
+                   asp-area="@item.AreaName"
+                   asp-controller="@item.ControllerName"
+                   asp-action="@item.ActionName">
+                    <i class="@(item.Icon ?? "bi bi-circle")"></i>
+                    <span>@item.ItemName</span>
                 </a>
             }
         </li>

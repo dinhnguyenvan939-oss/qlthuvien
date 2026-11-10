@@ -10,5 +10,5 @@ public class tblTheLoai
     public bool IsActive { get; set; } = true;
     public int CategoryId { get; set; }
     public tblDanhMuc Category { get; set; } = null!;
-    public ICollection<Book> Books { get; set; } = new List<Book>();
+    public ICollection<tblSach> Books { get; set; } = new List<tblSach>();
 }
